@@ -2,8 +2,9 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from apyori import apriori
-from sklearn.cluster import KMeans
-
+from sklearn.cluster import KMeans, AgglomerativeClustering, DBSCAN
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
 
 #Columns --> age,sex,bmi,children,smoker,region,charges
 
@@ -195,18 +196,42 @@ def assosiationRules():
 #this function is for finding kmeans clusters each column with charges
 #----takes in cluster total and column name----
 def clustering(clusterValue, columnValue):
+    
+
     c1 = insuranceNumeric[[columnValue, 'charges']]
     cluster1 = KMeans(n_clusters=clusterValue)
     cluster1.fit(c1)
-    c1['cluster'] = cluster1.fit_predict(c1)
-    plt.scatter(c1[columnValue], c1['charges'], c=c1['cluster'], cmap='rainbow')
+    
+
+    
+
+    clusterGT= cluster1.fit_predict(c1)
+    print(clusterGT)
+
+    plt.scatter(c1[columnValue], c1['charges'], c=clusterGT, cmap='rainbow')
     plt.xlabel(columnValue)
     plt.ylabel('charges')
     plt.show()
 
 
+    #c2 = insuranceNumeric[[columnValue, 'charges']]
+    #meanS = MeanShift(bandwidth=clusterValue).fit(c2)
 
 
+#this chart shows standard direct correlation between a single attribute and charge
+#----takes in column name----
+def regression(columnName):
+    plt.scatter(insuranceData[columnName], insuranceData['charges'], color = 'lightblue', edgecolor = 'black')
+    plt.title(columnName + " vs Charges")
+    plt.xlabel(columnName)
+    plt.ylabel("Charges")
+    plt.show()
+
+
+#can only use for bmi, age, children, and charges
+def correlationCoefficient(columnName):
+
+    print("Correlation Coefficient for " + columnName + " and charges: " + str(insuranceNumeric[columnName].corr(insuranceNumeric['charges'])))
 
 if __name__ == '__main__':
     #assosiationRules()
@@ -214,4 +239,6 @@ if __name__ == '__main__':
     #createCharts()
     #clustering(5, 'region')
     #makeNumeric()
-    print(insuranceNumeric.describe()) #statistics of each column
+    #print(insuranceNumeric.describe()) #statistics of each column
+    #regression('age')
+    correlationCoefficient('bmi')
