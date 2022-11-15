@@ -11,9 +11,9 @@ from sklearn.cluster import KMeans
 insuranceData = pd.read_csv("insurance.csv") #original data
 insuranceDataLabels = pd.read_csv("insuranceLabels.csv", header = None) #labels for data
 insuranceDataBinning = pd.read_csv("insuranceBinning.csv", header = None) #binning data
+insuranceNumeric = pd.read_csv("insuranceNumeric.csv") #numeric data
 
-
-# this function makes files for different data tecniques 
+# this function makes files for different data tecniques(FOR EASIER READABILITY)
 def makeLabels():
     fileData = []
     with open("insurance.csv", "r") as f:
@@ -26,7 +26,7 @@ def makeLabels():
             fp.write("age="+linee[0] + ",sex="+linee[1] + ",bmi="+linee[2] + ",children="+linee[3] + ",smoker="+linee[4] + ",region="+linee[5] + ",charges="+linee[6] )
     
 
-#making bins to store numerial data and view easier
+#making bins to store numerial data and view easier(FOR ASSOCIATION RULES)
 def makeBins():
     fileData = []
     with open("insurance.csv", "r") as f:
@@ -77,6 +77,42 @@ def makeBins():
 
             fp.write(age + ",sex="+linee[1] + bmi+ ",children="+linee[3] + ",smoker="+linee[4] + ",region="+linee[5] + charges +'\n')
     
+
+#this function creates numeric values for the data(FOR CLUSTERING)
+def makeNumeric():
+    fileData = []
+    with open("insurance.csv", "r") as f:
+        fileLines = f.readlines()
+        for line in fileLines:
+            fileData.append(line.split(","))
+
+    with open("insuranceNumeric.csv", "w") as fp:
+        for linee in fileData:
+            sex =   ""
+            smoker = ""
+            region = ""
+
+            if linee[1] == "female":
+                sex = "0"
+            else:
+                sex = "1"
+            
+            if linee[4] == "yes":
+                smoker = "1"
+            else:
+                smoker = "0"
+
+            if linee[5] == "southeast":
+                region = "1"
+            elif linee[5] == "southwest":
+                region = "2"
+            elif linee[5] == "northeast":
+                region = "3"
+            elif linee[5] == "northwest":
+                region = "4"
+
+            fp.write(linee[0] + "," + sex + "," + linee[2] + "," + linee[3] + "," + smoker + "," + region + "," + linee[6] )
+
 
 #this function creates histograms for the columns
 def createCharts():
@@ -137,7 +173,6 @@ def createCharts():
     plt.show()
 
 
-
 #this function prints all association rules for common trends in the set
 def assosiationRules():
     insuranceRecords = []
@@ -156,18 +191,19 @@ def assosiationRules():
         print("Lift: " + str(x[2][0][3]))
         print("=====================================")
 
-def clustering():
-    X = insuranceData[['age', 'charges']]
-    kmeans = KMeans(n_clusters=3)
-    kmeans.fit(X)
-    y_kmeans = kmeans.predict(X)
-    plt.xlabel('Age')
-    plt.ylabel('Charges')
-    plt.scatter(X['age'], X['charges'], c=y_kmeans, s=50, cmap='viridis')
+
+#this function is for finding kmeans clusters each column with charges
+#----takes in cluster total and column name----
+def clustering(clusterValue, columnValue):
+    c1 = insuranceNumeric[[columnValue, 'charges']]
+    cluster1 = KMeans(n_clusters=clusterValue)
+    cluster1.fit(c1)
+    c1['cluster'] = cluster1.fit_predict(c1)
+    plt.scatter(c1[columnValue], c1['charges'], c=c1['cluster'], cmap='rainbow')
+    plt.xlabel(columnValue)
+    plt.ylabel('charges')
     plt.show()
 
-    #figure out how to cluster non numerical data
-    
 
 
 
@@ -176,4 +212,5 @@ if __name__ == '__main__':
     #assosiationRules()
     #makeBins()
     #createCharts()
-    clustering()
+    clustering(3, 'region')
+    #makeNumeric()
