@@ -212,5 +212,6 @@ if __name__ == '__main__':
     #assosiationRules()
     #makeBins()
     #createCharts()
-    clustering(3, 'region')
+    #clustering(5, 'region')
     #makeNumeric()
+    print(insuranceNumeric.describe()) #statistics of each column
