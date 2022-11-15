@@ -13,6 +13,7 @@ insuranceData = pd.read_csv("insurance.csv") #original data
 insuranceDataLabels = pd.read_csv("insuranceLabels.csv", header = None) #labels for data
 insuranceDataBinning = pd.read_csv("insuranceBinning.csv", header = None) #binning data
 insuranceNumeric = pd.read_csv("insuranceNumeric.csv") #numeric data
+insuranceDataBinning2 = pd.read_csv("insuranceBinning2.csv") #binning data for averages of charges
 
 # this function makes files for different data tecniques(FOR EASIER READABILITY)
 def makeLabels():
@@ -35,48 +36,35 @@ def makeBins():
         for line in fileLines:
             fileData.append(line.split(","))
 
-    with open("insuranceBinning.csv", "w") as fp:
+    with open("insuranceBinning2.csv", "w") as fp:
 
         for linee in fileData:
             age = ""
             bmi = ""
-            charges = ""
             if int(linee[0]) < 28:
-                age = "age=<28"
+                age = "<28"
             elif int(linee[0]) >= 28 and int(linee[0]) <= 37:
-                age = "age=28-37"
+                age = "28-37"
             elif int(linee[0]) >= 38 and int(linee[0]) <= 47:
-                age = "age=38-47"
+                age = "38-47"
             elif int(linee[0]) >= 48 and int(linee[0]) <= 57:
-                age = "age=48-57"
+                age = "48-57"
             elif int(linee[0]) > 57:
-                age = "age=57<"
+                age = "57<"
             
             if float(linee[2]) < 24:
-                bmi = ",bmi=<24"
+                bmi = "<24"
             elif float(linee[2]) >= 24 and float(linee[2]) <= 32:
-                bmi = ",bmi=24-32"
-            elif float(linee[2]) >= 33 and float(linee[2]) <= 41:
-                bmi = ",bmi=33-41"
-            elif float(linee[2]) >= 42 and float(linee[2]) <= 50:
-                bmi = ",bmi=42-50"
+                bmi = "24-32"
+            elif float(linee[2]) > 32 and float(linee[2]) <= 41:
+                bmi = "32.001-41"
+            elif float(linee[2]) > 41 and float(linee[2]) <= 50:
+                bmi = "41.001-50"
             elif float(linee[2]) > 50:
-                bmi = ",bmi=50<"
+                bmi = "50<"
 
-            if float(linee[6]) < 11621:
-                charges = ",charges=<11621"
-            elif float(linee[6]) >= 11621 and float(linee[6]) <= 22122:
-                charges = ",charges=11621-22122"
-            elif float(linee[6]) >= 22123 and float(linee[6]) <= 32623:
-                charges = ",charges=22123-32623"
-            elif float(linee[6]) >= 32624 and float(linee[6]) <= 43124:
-                charges = ",charges=32624-43124"
-            elif float(linee[6]) >= 43125 and float(linee[6]) <= 53625:
-                charges = ",charges=43125-53625"
-            elif float(linee[6]) > 53625:
-                charges = ",charges=53625<"
 
-            fp.write(age + ",sex="+linee[1] + bmi+ ",children="+linee[3] + ",smoker="+linee[4] + ",region="+linee[5] + charges +'\n')
+            fp.write(age + ","+ linee[1] + "," + bmi+ ","+linee[3] + ","+linee[4] + ","+ linee[5] + "," + linee[6] )
     
 
 #this function creates numeric values for the data(FOR CLUSTERING)
@@ -252,12 +240,26 @@ def correlationChart():
     print(test)
     """
 
+
+#to find average charge cost per column option
+#----takes in column name----
+def averageChargePerColumn(columnName):
+    listofoptions = []
+    for x in insuranceDataBinning2[columnName]:
+        if x not in listofoptions:
+            listofoptions.append(x)
+
+    for x in listofoptions:
+        print("Average charge for " + columnName + " " + str(x) + " is: " + str(insuranceDataBinning2[insuranceDataBinning2[columnName] == x]['charges'].mean()))
+
+
 if __name__ == '__main__':
-    #assosiationRules()
-    #makeBins()
-    #createCharts()
-    #clustering(5, 'region')
-    #makeNumeric()
+    #assosiationRules() #this function prints all association rules for common trends in the set
+    #makeBins() #this function makes bins for the data
+    #createCharts() #this function creates charts for the data
+    #clustering(5, 'region') #this function is for finding kmeans clusters each column with charges
+    #makeNumeric() #this function makes the data numeric
     #print(insuranceNumeric.describe()) #statistics of each column
-    #regression('age')
-    correlationChart()
+    #regression('age') #this chart shows standard direct correlation between a single attribute and charge
+    #correlationChart() #this chart shows correlation between all columns
+    #averageChargePerColumn('region') #to find average charge cost per column option
