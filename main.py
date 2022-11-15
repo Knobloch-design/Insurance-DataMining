@@ -229,9 +229,28 @@ def regression(columnName):
 
 
 #can only use for bmi, age, children, and charges
-def correlationCoefficient(columnName):
+def correlationChart():
 
-    print("Correlation Coefficient for " + columnName + " and charges: " + str(insuranceNumeric[columnName].corr(insuranceNumeric['charges'])))
+    #print("Correlation Coefficient for " + columnName + " and charges: " + str(insuranceNumeric[columnName].corr(insuranceNumeric['charges'])))
+    corr = insuranceData.corr()
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    cax = ax.matshow(corr, cmap = 'coolwarm', vmin=-1, vmax=1)
+    fig.colorbar(cax)
+    ticks = np.arange(0,7,1)
+    ax.set_xticks(ticks)
+    ax.set_yticks(ticks)
+    ax.set_xticklabels(insuranceData.columns)
+    ax.set_yticklabels(insuranceData.columns)
+    plt.show()
+
+    """
+    test = insuranceData.apply(lambda x: x.factorize()[0]).corr(method='pearson', min_periods=1)
+    import seaborn as sns
+    sns.heatmap(test, annot=True)
+    plt.show()
+    print(test)
+    """
 
 if __name__ == '__main__':
     #assosiationRules()
@@ -241,4 +260,4 @@ if __name__ == '__main__':
     #makeNumeric()
     #print(insuranceNumeric.describe()) #statistics of each column
     #regression('age')
-    correlationCoefficient('bmi')
+    correlationChart()
