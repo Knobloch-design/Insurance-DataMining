@@ -28,7 +28,7 @@ def makeLabels():
             fp.write("age="+linee[0] + ",sex="+linee[1] + ",bmi="+linee[2] + ",children="+linee[3] + ",smoker="+linee[4] + ",region="+linee[5] + ",charges="+linee[6] )
     
 
-#making bins to store numerial data and view easier(FOR ASSOCIATION RULES)
+#making bins to store numerial data and view easier
 def makeBins():
     fileData = []
     with open("insurance.csv", "r") as f:
@@ -209,12 +209,16 @@ def clustering(clusterValue, columnValue):
 #this chart shows standard direct correlation between a single attribute and charge
 #----takes in column name----
 def regression(columnName):
+    '''
     plt.scatter(insuranceData[columnName], insuranceData['charges'], color = 'lightblue', edgecolor = 'black')
     plt.title(columnName + " vs Charges")
     plt.xlabel(columnName)
     plt.ylabel("Charges")
     plt.show()
-
+    '''
+    plt.pie(insuranceDataBinning2[columnName].value_counts(), labels = insuranceDataBinning2[columnName].value_counts().index, autopct='%1.1f%%')
+    plt.title(columnName)
+    plt.show()
 
 #can only use for bmi, age, children, and charges
 def correlationChart():
@@ -241,7 +245,7 @@ def correlationChart():
     """
 
 
-#to find average charge cost per column option
+#to find average charge cost per column possibilityoption
 #----takes in column name----
 def averageChargePerColumn(columnName):
     listofoptions = []
@@ -260,6 +264,6 @@ if __name__ == '__main__':
     #clustering(5, 'region') #this function is for finding kmeans clusters each column with charges
     #makeNumeric() #this function makes the data numeric
     #print(insuranceNumeric.describe()) #statistics of each column
-    #regression('age') #this chart shows standard direct correlation between a single attribute and charge
+    regression('bmi') #this chart shows standard direct correlation between a single attribute and charge
     #correlationChart() #this chart shows correlation between all columns
     #averageChargePerColumn('region') #to find average charge cost per column option
