@@ -245,7 +245,7 @@ def correlationChart():
     """
 
 
-#to find average charge cost per column possibilityoption
+#to find average charge cost per column possibility
 #----takes in column name----
 def averageChargePerColumn(columnName):
     listofoptions = []
@@ -266,4 +266,4 @@ if __name__ == '__main__':
     #print(insuranceNumeric.describe()) #statistics of each column
     regression('bmi') #this chart shows standard direct correlation between a single attribute and charge
     #correlationChart() #this chart shows correlation between all columns
-    #averageChargePerColumn('region') #to find average charge cost per column option
+    #averageChargePerColumn('region') #to find average charge cost per column possibility
