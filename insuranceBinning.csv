@@ -1,3 +1,4 @@
+age,sex,bmi,children,smoker,region,charges
 age=<28,sex=female,bmi=24-32,children=0,smoker=yes,region=southwest,charges=11621-22122
 age=<28,sex=male,bmi=33-41,children=1,smoker=no,region=southeast,charges=<11621
 age=28-37,sex=male,bmi=33-41,children=3,smoker=no,region=southeast,charges=<11621

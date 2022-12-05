@@ -5,13 +5,24 @@ from apyori import apriori
 from sklearn.cluster import KMeans, AgglomerativeClustering, DBSCAN
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
+from sklearn.datasets import make_regression
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.inspection import permutation_importance
+
+from matplotlib import pyplot
+from sklearn.cluster import MeanShift, estimate_bandwidth
+from sklearn.ensemble import ExtraTreesClassifier, ExtraTreesRegressor
+from sklearn.feature_selection import SelectFromModel
+
+
+
 
 #Columns --> age,sex,bmi,children,smoker,region,charges
 
 # creating a data frame
 insuranceData = pd.read_csv("insurance.csv") #original data
 insuranceDataLabels = pd.read_csv("insuranceLabels.csv", header = None) #labels for data
-insuranceDataBinning = pd.read_csv("insuranceBinning.csv", header = None) #binning data
+insuranceBinning = pd.read_csv("insuranceBinning.csv") #binning data
 insuranceNumeric = pd.read_csv("insuranceNumeric.csv") #numeric data
 insuranceDataBinning2 = pd.read_csv("insuranceBinning2.csv") #binning data for averages of charges
 
@@ -168,7 +179,7 @@ def assosiationRules():
     for i in range(0, 1338):
         insuranceRecords.append([str(insuranceDataBinning.values[i,j]) for j in range(0, 7)])
 
-    association_rules = apriori(insuranceRecords, min_support=0.05, min_confidence=0.7, min_lift=3, min_length=2)
+    association_rules = apriori(insuranceRecords, min_support=0.03, min_confidence=0.5, min_lift=3, min_length=2)
     association_results = list(association_rules)
 
     for x in association_results:
@@ -209,16 +220,16 @@ def clustering(clusterValue, columnValue):
 #this chart shows standard direct correlation between a single attribute and charge
 #----takes in column name----
 def regression(columnName):
-    '''
-    plt.scatter(insuranceData[columnName], insuranceData['charges'], color = 'lightblue', edgecolor = 'black')
-    plt.title(columnName + " vs Charges")
+    
+    plt.scatter(insuranceData[columnName], insuranceData['charges'], color = 'pink', edgecolor = 'black')
+    plt.title(columnName + " vs charges")
     plt.xlabel(columnName)
     plt.ylabel("Charges")
     plt.show()
-    '''
-    plt.pie(insuranceDataBinning2[columnName].value_counts(), labels = insuranceDataBinning2[columnName].value_counts().index, autopct='%1.1f%%')
-    plt.title(columnName)
-    plt.show()
+    
+    #plt.pie(insuranceDataBinning2[columnName].value_counts(), labels = insuranceDataBinning2[columnName].value_counts().index, autopct='%1.1f%%')
+    #plt.title(columnName)
+    #plt.show()
 
 #can only use for bmi, age, children, and charges
 def correlationChart():
@@ -255,6 +266,52 @@ def averageChargePerColumn(columnName):
 
     for x in listofoptions:
         print("Average charge for " + columnName + " " + str(x) + " is: " + str(insuranceDataBinning2[insuranceDataBinning2[columnName] == x]['charges'].mean()))
+    
+
+#finds most important factors for charges
+def featureimportanceReg():
+    X = insuranceNumeric.drop(['charges'], axis=1)
+    y = insuranceNumeric['charges']
+    model = ExtraTreesRegressor()
+    model.fit(X,y)
+    print(model.feature_importances_)
+    feat_importances = pd.Series(model.feature_importances_, index=X.columns)
+    feat_importances.nlargest(6).plot(kind='barh', color = '#B19CD9', edgecolor = 'black')
+    plt.title("Feature Importance (Regression)")
+
+    plt.show()
+
+
+#need new dataset for this
+def featureimportanceClass():
+    X = insuranceBinning.drop(['charges'], axis=1)
+    y = insuranceBinning['charges']
+    model = ExtraTreesClassifier()
+    model.fit(X,y)
+    print(model.feature_importances_)
+    feat_importances = pd.Series(model.feature_importances_, index=X.columns)
+    feat_importances.nlargest(5).plot(kind='barh', color = 'pink', edgecolor = 'black')
+    plt.title("Feature Importance (Classification)")
+    plt.show()
+
+
+
+#just for testing
+def makegraph():
+    y = [9598.321768670217, 12112.165584024535, 15680.346645159241, 17188.63292984616, 16034.305366666667]
+    x = ['<24', '24-32', '32.001-41', '41.001-50', '50<']
+
+
+
+
+
+    plt.bar(x, y, color = 'lightgreen', edgecolor = 'black')
+    plt.title("Average Charge per bmi")
+    
+    plt.xlabel("bmi")
+    plt.ylabel("Average Charge")
+
+    plt.show()
 
 
 if __name__ == '__main__':
@@ -264,6 +321,12 @@ if __name__ == '__main__':
     #clustering(5, 'region') #this function is for finding kmeans clusters each column with charges
     #makeNumeric() #this function makes the data numeric
     #print(insuranceNumeric.describe()) #statistics of each column
-    regression('bmi') #this chart shows standard direct correlation between a single attribute and charge
+    #regression('sex') #this chart shows standard direct correlation between a single attribute and charge
+    
+
     #correlationChart() #this chart shows correlation between all columns
-    #averageChargePerColumn('region') #to find average charge cost per column possibility
+    #averageChargePerColumn('children') #to find average charge cost per column possibility
+
+    featureimportanceReg() #this function shows the importance of each feature
+    #featureimportanceClass() #this function shows the importance of each feature
+    #makegraph()
