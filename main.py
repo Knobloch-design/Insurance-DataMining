@@ -14,7 +14,7 @@ from sklearn.cluster import MeanShift, estimate_bandwidth
 from sklearn.ensemble import ExtraTreesClassifier, ExtraTreesRegressor
 from sklearn.feature_selection import SelectFromModel
 
-
+chargeWeight = 8296.665168171816
 
 
 #Columns --> age,sex,bmi,children,smoker,region,charges
@@ -23,7 +23,8 @@ from sklearn.feature_selection import SelectFromModel
 insuranceData = pd.read_csv("insurance.csv") #original data
 insuranceDataLabels = pd.read_csv("insuranceLabels.csv", header = None) #labels for data
 insuranceBinning = pd.read_csv("insuranceBinning.csv") #binning data
-insuranceNumeric = pd.read_csv("insuranceNumeric.csv") #numeric data
+insuranceNumeric = pd.read_csv("insuranceNumeric.csv") #numeric data\
+
 insuranceDataBinning2 = pd.read_csv("insuranceBinning2.csv") #binning data for averages of charges
 
 # this function makes files for different data tecniques(FOR EASIER READABILITY)
@@ -314,6 +315,57 @@ def makegraph():
     plt.show()
 
 
+def makeBoxPlot(column):
+    x = insuranceNumeric[column]
+    fig = plt.figure(figsize=(10, 7))
+    ax = fig.add_subplot(111)
+    bp = ax.boxplot(x, patch_artist=True, vert=0)
+    plt.title(column+" Box Plot")
+
+    plt.show()
+
+def modelFeatureImportance(age,sex,bmi, children,smoker,region):
+    X = insuranceNumeric.drop(['charges'], axis=1)
+    y = insuranceNumeric['charges']
+    model = ExtraTreesRegressor()
+    model.fit(X,y)
+
+    score = 0
+    score = score + age * model.feature_importances_[0]
+    score = score + sex * model.feature_importances_[1]
+    score = score + bmi * model.feature_importances_[2]
+    score = score + children * model.feature_importances_[3]
+    score = score + smoker * model.feature_importances_[4]
+    score = score + region * model.feature_importances_[5]
+    return score
+
+def modelweightScoreToCharge():
+
+    b = insuranceNumeric['age']
+    c = insuranceNumeric['sex']
+    d = insuranceNumeric['bmi']
+    e = insuranceNumeric['children']
+    f = insuranceNumeric['smoker']
+    g = insuranceNumeric['region']
+
+    sum = 0
+
+    for x in range(b.size):
+
+        if( x == 0):
+            continue
+
+        sum = sum + modelFeatureImportance(b[x],c[x],d[x],e[x],f[x],g[x])
+
+    meanScore = sum/insuranceNumeric.size
+
+    return sum
+
+def predictCharge(age,sex,bmi, children,smoker,region):
+    score  = modelFeatureImportance(age,sex,bmi, children,smoker,region)
+    return score*chargeWeight
+
+
 if __name__ == '__main__':
     #assosiationRules() #this function prints all association rules for common trends in the set
     #makeBins() #this function makes bins for the data
@@ -327,6 +379,12 @@ if __name__ == '__main__':
     #correlationChart() #this chart shows correlation between all columns
     #averageChargePerColumn('children') #to find average charge cost per column possibility
 
-    featureimportanceReg() #this function shows the importance of each feature
+    #featureimportanceReg() #this function shows the importance of each feature
     #featureimportanceClass() #this function shows the importance of each feature
     #makegraph()
+    #makeBoxPlot("charges")
+    print(modelFeatureImportance())
+    #print(modelweightScoreToCharge())
+    #print(insuranceNumeric.drop(["charges"],axis=1))
+    #print(predictCharge(19,0,27.9,0,1,2))
+
