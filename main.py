@@ -13,6 +13,7 @@ from matplotlib import pyplot
 from sklearn.cluster import MeanShift, estimate_bandwidth
 from sklearn.ensemble import ExtraTreesClassifier, ExtraTreesRegressor
 from sklearn.feature_selection import SelectFromModel
+from sklearn.linear_model import LinearRegression
 
 chargeWeight = 8296.665168171816
 
@@ -365,6 +366,46 @@ def predictCharge(age,sex,bmi, children,smoker,region):
     score  = modelFeatureImportance(age,sex,bmi, children,smoker,region)
     return score*chargeWeight
 
+def LinearRegressionModel():
+    x = np.array(insuranceNumeric['region'])
+    y = np.array(insuranceNumeric['charges'])
+    m, b = np.polyfit(x, y, 1)
+    return m,b
+
+def modelSumRegressions(age,sex,bmi, children,smoker,region):
+
+    ageP = (257.72 * pow(age-18,1.5))*0.12912909
+    sexP = (1387.1723*sex)*0.01040767
+    bmiP = (393.8730307973951*bmi*1.5)*0.1925387
+    childrenP = (-683.0893*children)*0.02398837
+    smokerP = (23615.9635*smoker*2.2)*0.62059197
+    regionP = (-610.3022*region)*0.02334421
+
+    chargeP = ageP+ sexP+bmiP+childrenP+smokerP+regionP
+
+
+
+    return chargeP
+
+def PredictedVSActual():
+    X = insuranceNumeric.drop(['charges'], axis=1)
+    c = insuranceNumeric['charges']
+
+    y = []
+    X = X.values
+    n=0
+    for z in X:
+        y.append(modelSumRegressions(z[0],z[1],z[2],z[3],z[4],z[5]))
+
+
+    plt.scatter(c,y)
+    plt.title("Predicted vs Actual")
+
+    plt.xlabel("Actual Charge")
+    plt.ylabel("Predicted Charge")
+
+    plt.show()
+
 
 if __name__ == '__main__':
     #assosiationRules() #this function prints all association rules for common trends in the set
@@ -383,8 +424,12 @@ if __name__ == '__main__':
     #featureimportanceClass() #this function shows the importance of each feature
     #makegraph()
     #makeBoxPlot("charges")
-    print(modelFeatureImportance())
+    #print(modelFeatureImportance())
     #print(modelweightScoreToCharge())
     #print(insuranceNumeric.drop(["charges"],axis=1))
     #print(predictCharge(19,0,27.9,0,1,2))
+    #print(LinearRegressionModel())
+    print(modelSumRegressions(55,0,26.98,0,0,4))
+    #PredictedVSActual()
+
 
